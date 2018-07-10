@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
+use App\Repo;
 
 class apiController extends Controller
 {
@@ -18,8 +19,21 @@ class apiController extends Controller
 
 		$repos = json_decode($response->getBody());
 
-		//return $repos;
+		//guarda en bd si no existe
+		foreach ($repos as $repo) {
+			# code...
+			$repoLocal = Repo::where('id_repo',$repo->id);
 
+			if($repoLocal){
+				$repoLocal->delete();
+			}
+			$repoNew = Repo::create([
+						'id_repo' => $repo->id,
+						'name' => $repo->name,
+						'owner' => $repo->owner->login,
+						'fecha_creacion' => $repo->created_at,
+						'fecha_commit' => $repo->pushed_at]);
+		}	
     	return view('api',compact('repos'));
     }
 }
