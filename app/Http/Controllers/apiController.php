@@ -11,29 +11,39 @@ class apiController extends Controller
     //
     public function show(){
 
-    	$client = new Client([
-		    'base_uri' => 'https://api.github.com',
-		]);
+    		$repos = Repo::all();
 
-		$response = $client->request('GET', 'orgs/githubtraining/repos');
+			if (isset($repos) && count($repos) > 0) {
+				$bd = 1;
+			}else{
+				$bd = 0;
+				$client = new Client([
+		    		'base_uri' => 'https://api.github.com',
+					]);
 
-		$repos = json_decode($response->getBody());
+				$response = $client->request('GET', 'orgs/githubtraining/repos');
 
-		//guarda en bd si no existe
-		foreach ($repos as $repo) {
-			# code...
-			$repoLocal = Repo::where('id_repo',$repo->id);
+				$repos = json_decode($response->getBody());
 
-			if($repoLocal){
-				$repoLocal->delete();
+				//guarda en bd si no existe
+				foreach ($repos as $repo) {
+					# code...
+
+					$repoLocal = Repo::where('id_repo',$repo->id);
+
+					if($repoLocal){
+						$repoLocal->delete();
+					}
+					$repoNew = Repo::create([
+								'id_repo' => $repo->id,
+								'name' => $repo->name,
+								'owner' => $repo->owner->login,
+								'fecha_creacion' => $repo->created_at,
+								'fecha_commit' => $repo->pushed_at]);
+				}
 			}
-			$repoNew = Repo::create([
-						'id_repo' => $repo->id,
-						'name' => $repo->name,
-						'owner' => $repo->owner->login,
-						'fecha_creacion' => $repo->created_at,
-						'fecha_commit' => $repo->pushed_at]);
-		}	
-    	return view('api',compact('repos'));
+
+    		
+    	return view('api',compact('repos','bd'));
     }
 }

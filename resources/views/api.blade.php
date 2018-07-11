@@ -22,9 +22,17 @@
 	  	@foreach($repos as $repo)
 	    <tr>
 	      <td>{{$repo->name}}</td>
-	      <td>{{$repo->owner->login}}</td>
-	      <td>{{$repo->created_at}}</td>
-	      <td>{{$repo->pushed_at}}</td>
+	      @if ($bd == 1)
+	      	<td>{{$repo->owner}}</td>
+	      	<td>{{$repo->fecha_creacion}}</td>
+	      	<td>{{$repo->fecha_commit}}</td>
+	      @else
+		    <td>{{$repo->owner->login}}</td>
+		    <td>{{$repo->created_at}}</td>
+		    <td>{{$repo->pushed_at}}</td>
+	      	{{-- false expr --}}
+	      @endif
+	      
 	    </tr>
 	    @endforeach
 	  </tbody>
